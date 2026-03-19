@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, InternalServerError
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -14,12 +15,15 @@ export class UserService {
       throw new BadRequestException('Name, email and password are required');
     }
 
+    const saltRounds = 10;
+    const passHash = await bcrypt.hash(createUserDto.password, saltRounds);
+
     try { 
       const newUser = await this.prisma.user.create({
         data: {
         name: createUserDto.name,
         email: createUserDto.email,
-        password: createUserDto.password
+        password: passHash
       }
     })
     return newUser;
