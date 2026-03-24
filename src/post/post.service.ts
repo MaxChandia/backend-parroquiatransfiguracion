@@ -3,33 +3,36 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
+import { AwsService } from 'src/aws/aws.service';
 
 @Injectable()
 export class PostService {
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly awsService: AwsService) {}
   private readonly logger = new Logger(PostService.name);
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, file?: Express.Multer.File) {
     if (!createPostDto.title || !createPostDto.content) {
       throw new BadRequestException('Título y cuerpo son requeridos');
     }
 
     const slug = createPostDto.title.toLocaleLowerCase().trim().replace(/ /g, '-');
 
+    const uploadedImage = file ? await this.awsService.uploadFile(file) : null;
+
     const newPost = await this.prisma.post.create({
         data: {
           title: createPostDto.title,
           slug,
           content: createPostDto.content,
+          authorId: Number(createPostDto.authorId),
           images: {
-            create: createPostDto.images?.map(image => ({
-              s3Key: image.s3Key,
-              url: image.url,
-              isCover: image.isCover,
-            })) || []
-          },
-          authorId: createPostDto.authorId,
+            create: uploadedImage ? [{
+              s3Key: uploadedImage.s3Key,
+              url: uploadedImage.url,
+              isCover: true,
+            }] : []
+          }
         }
       });
   

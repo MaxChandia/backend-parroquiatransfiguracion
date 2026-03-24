@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UploadedFile } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiConsumes } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Request } from '@nestjs/common';
+import { UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('post')
 export class PostController {
@@ -15,15 +17,18 @@ export class PostController {
   @ApiBearerAuth()
   @Post()
   @ApiOperation({summary: "Crear Post"})
+  @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 201, description: 'Post creado exitosamente.' })
   @ApiResponse({status: 400, description: 'No se pudo crear post'})
   @ApiResponse({status: 409, description: 'Título de post ya creado'})
   @ApiResponse({status: 500, description: 'No se pudo conectar al servidor'})
-  create(@Body() createPostDto: CreatePostDto, @Request() req) {
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createPostDto: CreatePostDto,@UploadedFile() file: Express.Multer.File, @Request() req) {
 
     createPostDto.authorId = req.user.id;
 
-    return this.postService.create(createPostDto);
+    return this.postService.create(createPostDto, file);
   }
 
   @Get()
