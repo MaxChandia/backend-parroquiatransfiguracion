@@ -23,4 +23,7 @@ export class CreatePostDto {
     @IsString()
     authorId: number;
 
+    @ApiProperty({ type: 'string', format: 'binary', description: 'Imagen de portada', required: false })
+    file?: any;
+
 }
