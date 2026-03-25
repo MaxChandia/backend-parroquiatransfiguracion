@@ -1,0 +1,67 @@
+name: Parroquia Backend CI/CD
+
+# 1. ¿Cuándo se activa este robot?
+on:
+  push:
+    branches: [ "main" ] # ⚠️ Cambia a "master" si tu rama principal de git se llama así
+
+jobs:
+  # ---------------------------------------------------
+  # FASE 1: INTEGRACIÓN CONTINUA (Pruebas)
+  # ---------------------------------------------------
+  test-y-construccion:
+    name: Correr Pruebas y Construir
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Descargar el código
+      uses: actions/checkout@v4
+
+    - name: ⚙️ Preparar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: 📦 Instalar dependencias
+      run: npm install
+
+    - name: 🗄️ Preparar Prisma
+      run: npx prisma generate
+
+    - name: 🧪 Correr Pruebas Unitarias (Jest)
+      run: npm run test
+
+    - name: 🏗️ Compilar NestJS
+      run: npm run build
+
+  # ---------------------------------------------------
+  # FASE 2: DESPLIEGUE CONTINUO (Docker a AWS ECR)
+  # ---------------------------------------------------
+  deploy:
+    name: 🚀 Construir Docker y Subir a AWS ECR
+    needs: test-y-construccion # Esto asegura que no suba nada si los tests fallan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Descargar el código
+      uses: actions/checkout@v4
+
+    - name: 🔐 Configurar credenciales de AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1 # ⚠️ CAMBIA ESTO a tu región real (ej. sa-east-1, us-east-2)
+
+    - name: 🐳 Iniciar sesión en Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: 🏗️ Construir y subir imagen Docker
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: parroquia-backend # ⚠️ Debe coincidir con el nombre que le des en AWS
+        IMAGE_TAG: latest
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
