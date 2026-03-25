@@ -10,7 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   app.useGlobalFilters(new PrismaExceptionFilter());
-  setupSwagger(app);
-  await app.listen(process.env.PORT ?? 3000);
+  setupSwagger(app); 
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
