@@ -1,6 +1,7 @@
 # 1. Usamos un Linux súper liviano con Node 20
 FROM node:20-alpine
 
+RUN apk add --no-cache openssl libc6-compat
 # 2. Creamos la carpeta donde vivirá tu app dentro del contenedor
 WORKDIR /usr/src/app
 
