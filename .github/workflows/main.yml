@@ -3,7 +3,7 @@ name: Parroquia Backend CI/CD
 # 1. ¿Cuándo se activa este robot?
 on:
   push:
-    branches: [ "main" ] # ⚠️ Cambia a "master" si tu rama principal de git se llama así
+    branches: [ "max" ] # ⚠️ Cambia a "master" si tu rama principal de git se llama así
 
 jobs:
   # ---------------------------------------------------
