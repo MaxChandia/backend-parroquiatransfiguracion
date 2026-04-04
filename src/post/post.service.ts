@@ -53,7 +53,11 @@ export class PostService {
       const findPost = await this.prisma.post.findUnique({
         where: {
           id: id
-        }
+          
+        },
+        include: {
+          images: true,
+        },
       })
       
       if (!findPost){
