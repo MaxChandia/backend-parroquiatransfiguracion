@@ -49,6 +49,15 @@ export class PostController {
     return this.postService.findOne(+id);
   }
 
+  @Get(':slug')
+  @ApiOperation({summary: "Traer Post por slug"})
+  @ApiResponse({status: 200, description: 'Post encontrado'})
+  @ApiResponse({status: 404, description: 'No se pudo encontrar post'})
+  @ApiResponse({status: 500, description: 'No se pudo conectar al servidor'})
+  findBySlug(@Param('slug') slug: string) {
+    return this.postService.findBySlug(slug);
+  }
+
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -72,4 +81,6 @@ export class PostController {
   remove(@Param('id') id: string, @Request() req) {
     return this.postService.remove(+id);
   }
+
+
 }

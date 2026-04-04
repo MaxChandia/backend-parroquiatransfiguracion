@@ -68,6 +68,22 @@ export class PostService {
       return findPost
   }
 
+  async findBySlug(slug: string) {
+    const findPost = await this.prisma.post.findUnique({
+      where: {
+        slug: slug
+      },
+      include: {images: true}
+    })
+    
+    if (!findPost){
+      console.log("No se pudo encontrar post")
+      throw new NotFoundException(`No se pudo encontrar ${slug} Post`)
+    }
+    this.logger.log(findPost)
+    return findPost
+  }
+
   async update(id: number, updatePostDto: UpdatePostDto) {
 
     const postActualizado = await this.prisma.post.update({
