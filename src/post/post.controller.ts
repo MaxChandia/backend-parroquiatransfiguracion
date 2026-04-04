@@ -49,7 +49,7 @@ export class PostController {
     return this.postService.findOne(+id);
   }
 
-  @Get(':slug')
+  @Get('/slug/:slug')
   @ApiOperation({summary: "Traer Post por slug"})
   @ApiResponse({status: 200, description: 'Post encontrado'})
   @ApiResponse({status: 404, description: 'No se pudo encontrar post'})
