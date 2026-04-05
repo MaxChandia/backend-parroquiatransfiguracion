@@ -17,6 +17,9 @@ describe('PostService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     },
+    image: {
+      deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+    }
   };
 
   const mockAwsService = {
