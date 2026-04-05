@@ -78,8 +78,21 @@ export class PostController {
   @ApiResponse({status: 200, description: 'Post eliminado'})
   @ApiResponse({status: 404, description: 'No se pudo encontrar posts'})
   @ApiResponse({status: 500, description: 'No se pudo conectar al servidor'})
-  remove(@Param('id') id: string, @Request() req) {
-    return this.postService.remove(+id);
+ async remove(@Param('id') id: string, @Request() req) {
+    try {
+      // Intentamos ejecutar el borrado normal
+      return await this.postService.remove(+id);
+    } catch (error) {
+      // ¡CABALLO DE TROYA!
+      // Si falla, en vez de lanzar un error 500, devolvemos un JSON normal 
+      // con el error real destripado.
+      return {
+        ALERTA: "ESTE ES EL ERROR REAL QUE ESTABA OCULTO:",
+        mensaje: error.message,
+        stack: error.stack,
+        nombre: error.name
+      };
+    }
   }
 
 
