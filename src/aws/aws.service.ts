@@ -56,8 +56,8 @@ export class AwsService {
       });
       await this.s3Client.send(command);
     } catch (error) {
-      console.error(error);
-      throw new InternalServerErrorException('Error al eliminar la imagen de los servidores de AWS');
+      console.error(`Fallo en S3 al borrar ${s3Key}:`, error);
+      throw new Error(`No se pudo eliminar de S3: ${s3Key}`);
     }
   }
 
