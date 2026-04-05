@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
@@ -47,5 +47,18 @@ export class AwsService {
     }
   }
 
+  async deleteFile(s3Key: string) {
+    try {
+      const bucketName = process.env.AWS_S3_BUCKET_NAME;
+      const command = new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: s3Key,
+      });
+      await this.s3Client.send(command);
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException('Error al eliminar la imagen de los servidores de AWS');
+    }
+  }
 
 }

@@ -113,14 +113,33 @@ export class PostService {
   }
 
   async remove(id: number) {
+
+    const postToDelete = await this.prisma.post.findUnique({
+      where: { id: id },
+      include: { images: true },
+    });
+
+    if (!postToDelete) {
+      throw new NotFoundException('Post no encontrado');
+    }
+
+    if (postToDelete.images && postToDelete.images.length > 0) {
+      for (const image of postToDelete.images) {
+        try {
+          await this.awsService.deleteFile(image.s3Key);
+        } catch (error) {
+          this.logger.error(`Error al eliminar imagen ${image.s3Key} de S3: ${error.message}`);
+        }
+      }
+    }
+
+    await this.prisma.image.deleteMany({
+      where: { postId: id },
+    });
     const removePost = await this.prisma.post.delete({
       where: { id: id}
     })
 
-    if (!removePost) {
-      throw new NotFoundException('Ppst no encontrado')
-   
-    }
     this.logger.log('Post eliminado correctamente')
     return `Post ${removePost.title} eliminado correctamente`;
   }
