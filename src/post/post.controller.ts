@@ -61,7 +61,7 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Patch(':slug')
+  @Patch('slug/:slug')
   @ApiOperation({summary: "Actualizar Post por id"})
   @ApiResponse({status: 200, description: 'Post actualizado'})
   @ApiResponse({status: 404, description: 'No se pudo encontrar posts'})
