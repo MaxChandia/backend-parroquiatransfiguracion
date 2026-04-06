@@ -144,21 +144,21 @@ describe('PostService', () => {
   describe('update', () => {
     it('Debería actualizar una publicación', async () => {
 
-      const idPost = 1;
+      const slug = "Titulo";
       const dtoActualizar = { title: 'Título Corregido' } as any;
-      const postActualizado = { id: idPost, title: 'Título Corregido' };
+      const postActualizado = { slug: slug, title: 'Título Corregido' };
       
     
       (prisma.post.update as jest.Mock).mockResolvedValue(postActualizado);
 
 
-      const resultado = await service.update(idPost, dtoActualizar);
+      const resultado = await service.update(slug, dtoActualizar);
 
 
       expect(resultado).toEqual(postActualizado);
       expect(prisma.post.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: idPost }
+          where: { slug: slug }
         })
       );
     });

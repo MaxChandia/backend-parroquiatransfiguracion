@@ -61,14 +61,14 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch(':slug')
   @ApiOperation({summary: "Actualizar Post por id"})
   @ApiResponse({status: 200, description: 'Post actualizado'})
   @ApiResponse({status: 404, description: 'No se pudo encontrar posts'})
   @ApiResponse({status: 500, description: 'No se pudo conectar al servidor'})
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto, @Request() req) {
+  update(@Param('slug') slug: string, @Body() updatePostDto: UpdatePostDto, @Request() req) {
     updatePostDto.authorId = req.user.id;
-    return this.postService.update(+id, updatePostDto);
+    return this.postService.update(slug, updatePostDto);
   }
 
   @UseGuards(JwtAuthGuard)

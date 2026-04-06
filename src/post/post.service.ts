@@ -84,11 +84,11 @@ export class PostService {
     return findPost
   }
 
-  async update(id: number, updatePostDto: UpdatePostDto) {
+  async update(slug: string, updatePostDto: UpdatePostDto) {
 
     const postActualizado = await this.prisma.post.update({
       where:{
-        id:id},
+        slug:slug},
       data: {
         title: updatePostDto.title,
         slug: updatePostDto.slug,
